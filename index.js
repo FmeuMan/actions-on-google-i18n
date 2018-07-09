@@ -40,37 +40,55 @@ class I18n {
     return this;
   }
 
+  loadLocaleFile(locale) {
+    let filename = `${this.directory}/${locale}`;
+
+    if (this.defaultExtension) {
+      if (['js', 'json'].includes(this.defaultExtension)) {
+        filename = `${filename}.${this.defaultExtension}`;
+      } else {
+        throw new Error(
+          `[actions-on-google-i18n] extension "${
+            this.defaultExtension
+            }" is not allowed. Only "js" and "json" files are allowed.`
+        );
+      }
+    }
+
+    return this._fileExists(filename) ? require(filename) : null;
+  }
+
+  loadLocales(locale) {
+    let countryLocales = this.loadLocaleFile(locale.split('-')[0]);
+    const languageLocales = this.loadLocaleFile(locale);
+
+    if (!countryLocales && !languageLocales) {
+      // Fallback to default file if available
+      if (this._options.defaultFile && this._fileExists(this.defaultFile)) {
+        countryLocales = require(this.defaultFile);
+      } else {
+        throw new Error(
+          `[actions-on-google-i18n] can't load files for locale "${locale}".`
+        );
+      }
+    }
+
+    let locales = languageLocales || countryLocales;
+    if (countryLocales && languageLocales) {
+      // Both country and language level locale exists, merge them
+      locales = Object.assign({}, countryLocales, languageLocales);
+    }
+
+    return locales;
+  }
+
   use(app) {
     if (!this._options) {
       this.configure();
     }
 
     const __i18nFactory = conv => {
-      let file = `${this.directory}/${this.getLocale(conv)}`;
-
-      if (this.defaultExtension) {
-        if (['js', 'json'].includes(this.defaultExtension)) {
-          file = `${file}.${this.defaultExtension}`;
-        } else {
-          throw new Error(
-            `[actions-on-google-i18n] extension "${
-              this.defaultExtension
-            }" is not allowed. Only "js" and "json" files are allowed.`
-          );
-        }
-      }
-
-      if (this._options.defaultFile && this._fileExists(this.defaultFile)) {
-        file = this.defaultFile;
-      }
-
-      if (!this._fileExists(file)) {
-        throw new Error(
-          `[actions-on-google-i18n] file "${file}" does not exist.`
-        );
-      }
-
-      const locales = require(file);
+      const locales = this.loadLocales(this.getLocale(conv));
 
       return (key, context = {}) => {
         let translation = locales[key] || '';

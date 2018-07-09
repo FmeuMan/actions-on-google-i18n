@@ -6,9 +6,8 @@ describe("defaultLocale", () => {
 
   it("trigger a specific exception for an invalid defaultLocale", () => {
     const mockApp = new AppMock();
-    const defaultLocale = `en-xx`;
-    const file = `${directory}/${defaultLocale}`;
-    const expectedError = `[actions-on-google-i18n] file "${file}" does not exist.`;
+    const defaultLocale = `es-xx`;
+    const expectedError = `[actions-on-google-i18n] can't load files for locale "${defaultLocale}".`;
     i18n.configure({ directory, defaultLocale });
 
     expect(() => i18n.use(mockApp)).toThrowError(expectedError);

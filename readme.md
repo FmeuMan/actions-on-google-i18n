@@ -12,13 +12,20 @@ Create a folder with your locales (you can use either `js` or `json` files), e.g
 ```text
 ├── src/
 │   ├── locales/
+│   │   ├── en.json
 │   │   ├── en-GB.json
 │   │   └── en-US.json
-
 ```
 
 Each file must export (or have) a valid JSON content:
 
+```json
+// src/locales/en.json
+{
+  "WELCOME": "<speak>Hi {name}, I'm your assistant. What can I do for you?</speak>",
+  "BYE": "<speak>Bye</speak>"
+}
+```
 ```json
 // src/locales/en-US.json
 {
@@ -31,6 +38,8 @@ Each file must export (or have) a valid JSON content:
   "WELCOME": "<speak>Hi {name}, I'm your amazing assistant. How can I help?</speak>"
 }
 ```
+
+This module will first look for language level locale (e.g.: en-GB) and fallback to country level (e.g.: en). 
 
 ## Install
 
@@ -93,6 +102,10 @@ i18n
   
 app.intent('welcome', (conv) => {
   conv.ask(conv.__('WELCOME', { name: 'Wassim' }));
+});
+  
+app.intent('bye', (conv) => {
+  conv.ask(conv.__('BYE'));
 });
 
 exports.agent = functions.https.onRequest(app);

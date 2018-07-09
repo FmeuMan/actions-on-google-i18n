@@ -18,7 +18,7 @@ describe("translation", () => {
       const file = `${directoryEmpty}/en-us`;
       i18n.configure({ directory: directoryEmpty });
       expect(() => i18n.use(mockApp)).toThrowError(
-        `[actions-on-google-i18n] file "${file}" does not exist.`
+        `[actions-on-google-i18n] can't load files for locale "en-us".`
       );
     });
   });
